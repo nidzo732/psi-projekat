@@ -1,25 +1,14 @@
 ﻿{
   "compilerOptions": {
-    "module": "commonjs",
-    "allowJs": true,
-    "outDir": "out"
+    "allowJs": true, // These settings apply to .js files as well as .ts files
+    "noEmit": true // Do not compile the JS (or TS) files in this project on build
   },
   "exclude": [
-    "out",
-    "Scripts\\bootstrap-datepicker.js",
-    "Scripts\\bootstrap-datepicker.min.js",
-    "Scripts\\bootstrap.js",
-    "Scripts\\bootstrap.min.js",
-    "Scripts\\jquery.ellipsis.min.js",
-    "Scripts\\jquery.validate-vsdoc.js",
-    "Scripts\\jquery.validate.js",
-    "Scripts\\jquery.validate.unobtrusive.js",
-    "Scripts\\jquery.validate.unobtrusive.min.js",
-    "Scripts\\modernizr-2.6.2.js",
-    "Scripts\\perfect-scrollbar.min.js",
+    "node_modules",             // Don't include any JavaScript found under "node_modules"
+    "Scripts/"          // Suppress loading all the .js files from the Office NuGet package
   ],
-  "compileOnSave": true,
-  "typingOptions": {
-    "enableAutoDiscovery": true
+  "typeAcquisition": {
+    "enable": true,             // Enable automatic fetching of type definitions for .js libraries
+    "include": [ "office-js" ]  // Ensure the "Office-js" type definition is fetched
   }
 }

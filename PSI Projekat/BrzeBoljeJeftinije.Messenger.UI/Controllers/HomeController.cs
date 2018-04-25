@@ -1,5 +1,4 @@
-﻿using BrzeBoljeJeftinije.Messenger.UI.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,7 +10,6 @@ namespace BrzeBoljeJeftinije.Messenger.UI.Controllers
     {
         public ActionResult Index()
         {
-            SessionData.SignatureAuthToken = CryptoHelper.GetRandomToken();
             return View();
         }
     }

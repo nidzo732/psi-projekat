@@ -201,7 +201,7 @@ namespace CardCrypto
         }
         public static String GetCertificate()
         {
-            var certificate = GetCert(false);
+            var certificate = GetCert(true);
             if (certificate == null) return null;
             return Convert.ToBase64String(certificate.Export(X509ContentType.Cert));
         }

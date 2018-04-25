@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BrzeBoljeJeftinije.Messenger.DB.Entities
 {
-    public class User
+    class User
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -12,7 +12,5 @@ namespace BrzeBoljeJeftinije.Messenger.DB.Entities
         public byte[] Certificate { get; set; }
         public byte[] Picture { get; set; }
         public string PictureType { get; set; }
-        public string RtID { get; set; }
-        public DateTime? BannedUntil { get; set; }
     }
 }

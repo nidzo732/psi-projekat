@@ -4,12 +4,12 @@ using System.Text;
 
 namespace BrzeBoljeJeftinije.Messenger.DB.Entities
 {
-    public class FriendRequest
+    class FriendRequest
     {
         public int SenderId { get; set; }
-        public int ReceiverId { get; set; }
-        public bool Resolved { get; set; }
+        public int Receiver_ID { get; set; }
+        public bool Rejected { get; set; }
         public bool Seen { get; set; }
-        public DateTime Timestamp { get; set; }
+        public DateTime TimeStamp { get; set; }
     }
 }

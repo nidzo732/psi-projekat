@@ -3,7 +3,7 @@ var datePickerParams = { format: 'dd.mm.yyyy' }
 var modalStack = []
 var currentModal = null;
 $(document).ready(function () {
-    initSignalR();
+    
 });
 var navMenuTimeout = null;
 var activePrompt = null;
@@ -70,9 +70,12 @@ function showModal(id)
 }
 function closeModal()
 {
+    console.log('A')
     $(currentModal).find(".modal-inner").hide();
+    console.log('B')
     if(modalStack.length>0)
     {
+        console.log('C')
         oldModal= modalStack.pop();
         $(oldModal).find(".modal-inner").show();
         $(oldModal).show();
@@ -81,56 +84,8 @@ function closeModal()
     }
     else
     {
+        console.log('D')
         $(currentModal).hide();
         currentModal = null;
     }
-}
-function handleCardErrorMessage(msg)
-{
-    var status = msg.data.status;
-    var errorMessage = null;
-    switch(status)
-    {
-        case "NO_CARD":
-            errorMessage = "Lična karta nije ubačena ili je sertifikat na njoj neispravan";
-            break;
-        case "EXC":
-            errorMessage = "Došlo je do greške: " + msg.data.message;
-            break;
-        default:
-            errorMessage = "Došlo je do nepoznate greške prilikom obavljanja kriptografskih operacija";
-            break;
-    }
-    showAlertBox(errorMessage);
-}
-async function asyncAjax(url, data = {}, method = 'POST') {
-    var promise = new Promise((accept, reject) => {
-        $.ajax(url, {
-            method: method,
-            data: data,
-            success: function (result) {
-                accept(result);
-            },
-            error: (xhr, error, thrown) => {
-                err = "";
-                if (error) err = error;
-                if (thrown) err += " " + thrown;
-                showAlertBox("Došlo je do greške u mrežnoj komunikaciji: " + err);
-                reject(err);
-            }
-        });
-    });
-    return await promise;
-}
-function initSignalR()
-{
-    var hub = $.connection.messengerHub;
-    hub.client.Refresh = function (name, message)
-    {
-        console.log("RERERERE");
-        refreshGroups(true);
-    };
-    $.connection.hub.start().done(() =>
-    {
-    });
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BrzeBoljeJeftinije.Messenger.DB.Entities
 {
-    public class Message
+    class Message
     {
         public int Id { get; set; }
         public string Text { get; set; }

@@ -15,10 +15,8 @@ namespace BrzeBoljeJeftinije.Messenger.UI
                         "~/Scripts/jquery.validate*"));
 
             bundles.Add(new ScriptBundle("~/bundles/cardreader").Include("~/Scripts/cardReader.js"));
-            bundles.Add(new ScriptBundle("~/bundles/signalR").Include("~/Scripts/jquery.signalR-2.1.2.js"));
-            bundles.Add(new ScriptBundle("~/bundles/login").Include("~/Scripts/login.js"));
-            bundles.Add(new ScriptBundle("~/bundles/poruke").Include("~/Scripts/messages.js"));
-            bundles.Add(new ScriptBundle("~/bundles/podesavanja").Include("~/Scripts/settings.js"));
+            bundles.Add(new ScriptBundle("~/bundles/poruke").Include("~/Scripts/poruke.js"));
+            bundles.Add(new ScriptBundle("~/bundles/podesavanja").Include("~/Scripts/podesavanja.js"));
             bundles.Add(new ScriptBundle("~/bundles/admin").Include("~/Scripts/admin.js"));
             bundles.Add(new ScriptBundle("~/bundles/js").Include("~/Scripts/perfect-scrollbar.min.js",
                 "~/Scripts/global.js",

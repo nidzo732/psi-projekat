@@ -1,30 +1,16 @@
-﻿var previousUserSearchQuery = null;
-var userSearchResult = null;
-$(document).ready(function ()
-{
+﻿$(document).ready(function () {
 
 });
-async function searchUsers(event)
+function searchUsers()
 {
-    if (event.key.length > 1) return;
-    var query = $("#user-search").val().trim();
+    var query = $("#user-search").val();
     $("#user-list-body").html("");
-    if ($("#user-search").val().trim() != "")
-    {
-        if (!(previousUserSearchQuery != null && $("#user-search").val().trim().indexOf(previousUserSearchQuery) != -1 && userSearchResult != null))
-        {
-            userSearchResult = null;
-            userSearchResult = await asyncAjax("/Admin/Search",
-                {
-                    name: $("#user-search").val().trim()
-                });
-        }
-        previousUserSearchQuery = $("#user-search").val().trim();
-        userSearchResult.forEach(function (userObject)
-        {
-            if (userObject.name.toUpperCase().indexOf(query.toUpperCase()) == -1) return;
-            $("#user-list-body").append(renderTableRow(userObject.id, userObject.name, userObject.status, userObject.banDate, userObject.picture));
-        });
+    query=query.trim();
+    if (query == "") return;
+    for (user in users) {
+        userObject = users[user];
+        if (userObject.name.toUpperCase().indexOf(query.toUpperCase()) == -1) continue;
+        $("#user-list-body").append(renderTableRow(user, userObject.name, userObject.status, userObject.banDate, userObject.picture));
     }
 }
 function renderTableRow(userId, name, status, bandate, image)
@@ -45,23 +31,14 @@ function renderTableRow(userId, name, status, bandate, image)
     row.find(".user-ban-date").datepicker("setDate", bandate);
     return row;
 }
-async function updateUserStatus(sender)
+function updateUserStatus(sender)
 {
     var target = $(sender).closest("tr");
     var userId = target.attr("data-user-id");
     var status = target.find(".ban-status").val();
     var date = target.find(".user-ban-date").datepicker("getDate");
-    var response = await asyncAjax("/Admin/UpdateStatus", { Id: userId, Status: status, ExpiryDate: date.toISOString() });
-    userSearchResult = null;
-    if (response.indexOf("FAIL:") == 0)
-    {
-        showAlertBox(response.replace("FAIL:", ""));
-    }
-    else
-    {
-        showMessageBox("Stanje korisnika uspešno promenjeno");
-    }
-    searchUsers();
+    users[userId].status = status;
+    users[userId].banDate = date;
 }
 var userToDelete = null;
 function deleteUser(sender)
@@ -69,7 +46,7 @@ function deleteUser(sender)
     var target = $(sender).closest("tr");
     var userId = target.attr("data-user-id");
     userToDelete = userId;
-    showModal("#confirm-delete")
+    $("#confirm-delete").show();
 }
 function confirmDelete()
 {
@@ -79,47 +56,9 @@ function confirmDelete()
 }
 function registerNewAdmin()
 {
-    showModal("#register-new-admin")
+    $("#register-new-admin").show();
 }
-async function confirmAdminRegister()
+function confirmAdminRegister()
 {
-    var name = $("#new-admin-name").val();
-    var password = $("#new-admin-password").val();
-    var confirm = $("#new-admin-password-confirm").val();
-    if (name.trim().length == 0 || password.trim().length == 0)
-    {
-        showAlertBox("Niste uneli sve podatke");
-        return;
-    }
-    if (password != confirm)
-    {
-        showAlertBox("Lozinke se ne poklapaju");
-        return;
-    }
-    var response = await asyncAjax("/Admin/Register", { Username: name, Password: password });
-    if (response.indexOf("FAIL:") != -1)
-    {
-        showAlertBox(response.replace("FAIL:", ""));
-    }
-    else
-    {
-        showMessageBox("Registracija uspešna");
-    }
-}
-async function setNewPassword()
-{
-    var password = $("#new-password").val();
-    var confirm = $("#new-password-confirm").val();
-    if (password.length == 0)
-    {
-        showAlertBox("Lozinka ne može biti prazna");
-        return;
-    }
-    if (password != confirm)
-    {
-        showAlertBox("Lozinke se ne poklapaju");
-        return;
-    }
-    await asyncAjax("/Admin/MyPassword", { password: password });
-    showMessageBox("Lozinka uspešno promenjena");
+    showMessageBox("Registracija uspešna");
 }

@@ -5,24 +5,14 @@ using BrzeBoljeJeftinije.Messenger.DB.Entities;
 
 namespace BrzeBoljeJeftinije.Messenger.DB
 {
-    public class DBProvider : IDBProvider
+    class DBProvider : IDBProvider
     {
-        public void AddFriendship(User user1, User user2)
-        {
-            throw new NotImplementedException();
-        }
-
         public void AddUsersToGroup(List<User> users, Group group, bool isAdmin)
         {
             throw new NotImplementedException();
         }
 
         public bool CheckIfUserIsAdmin(User user, Group group)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void CommitIfNecessary()
         {
             throw new NotImplementedException();
         }
@@ -37,32 +27,12 @@ namespace BrzeBoljeJeftinije.Messenger.DB
             throw new NotImplementedException();
         }
 
-        public Group CreateGroup(Group group)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DeleteFriendRequest(FriendRequest request)
-        {
-            throw new NotImplementedException();
-        }
-
-        public AdminUser GetAdminUser(string username)
-        {
-            throw new NotImplementedException();
-        }
-
         public List<Attachment> GetAttachmentsForMessage(Message message)
         {
             throw new NotImplementedException();
         }
 
         public MessageCryptoMaterial GetCryptographicMaterial(User user, Message message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<User> GetFriends(User user)
         {
             throw new NotImplementedException();
         }
@@ -77,17 +47,7 @@ namespace BrzeBoljeJeftinije.Messenger.DB
             throw new NotImplementedException();
         }
 
-        public FriendRequest GetRequestBetween(User sender, User receiver)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<FriendRequest> GetSentFriendRequests(User user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<FriendRequest> GetUnresolvedFriendRequests(User user)
+        public void GetUnseenFriendRequestForUser(User user)
         {
             throw new NotImplementedException();
         }
@@ -112,21 +72,6 @@ namespace BrzeBoljeJeftinije.Messenger.DB
             throw new NotImplementedException();
         }
 
-        public void RollbackIfNecessary()
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<User> SearchUsersByName(string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void StoreAdminUser(AdminUser user)
-        {
-            throw new NotImplementedException();
-        }
-
         public void StoreAttachment(Attachment attachment)
         {
             throw new NotImplementedException();
@@ -143,11 +88,6 @@ namespace BrzeBoljeJeftinije.Messenger.DB
         }
 
         public void StoreUser(User user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void UpdateAdminUser(AdminUser user)
         {
             throw new NotImplementedException();
         }

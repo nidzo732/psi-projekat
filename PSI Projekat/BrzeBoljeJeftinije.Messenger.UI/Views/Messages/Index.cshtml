@@ -1,10 +1,233 @@
-﻿
-@Scripts.Render("~/bundles/poruke")
+﻿@Scripts.Render("~/bundles/poruke")
 <script>
-    var groups = [];
-    var friends = {};
-    var requests = {};
-    var currentGroup = null;
+    var friends = [
+        {
+            id: 0,
+            name: "Gica Prasić",
+            picture: "@Url.Content("~/Content/img/gica.png")",
+            admin: false
+        },
+        {
+            id: 0,
+            name: "Marvin Marsovac",
+            picture: "@Url.Content("~/Content/img/marsovac.png")",
+            admin: false
+        },
+        {
+            id: 0,
+            name: "Pepe Le Tvor",
+            picture: "@Url.Content("~/Content/img/pepe.png")",
+            admin: false
+        },
+        {
+            id: 0,
+            name: "Sima Strahota",
+            picture: "@Url.Content("~/Content/img/sima.png")",
+            admin: false
+        },
+        {
+            id: 0,
+            name: "Tasmanijski Đavo",
+            picture: "@Url.Content("~/Content/img/tas.png")",
+            admin: false
+        },
+        {
+            id: 0,
+            name: "Tviti",
+            picture: "@Url.Content("~/Content/img/tviti.gif")",
+            admin: false
+        },
+    ]
+    var groups = [
+        {
+            id: 0,
+            name: "Nova grupa",
+            admin: false
+        },
+        {
+            id: 1,
+            name: "Patak Dača",
+            picture: "@Url.Content("~/Content/img/daca.jpg")",
+            admin: false,
+            messages: [
+                {
+                    sent: false,
+                    picture: false,
+                    text: "Dulee, Duškoo, imaš posetu"
+                },
+                {
+                    sent: false,
+                    picture: false,
+                    text: "Samo kvarni opstaju, hehe"
+                },
+                {
+                    sent: true,
+                    picture: false,
+                    text: "Jel to neko kucao"
+                }
+            ]
+        },
+        {
+            id: 2,
+            name: "Elmer Davež",
+            picture: "@Url.Content("~/Content/img/elmer.png")",
+            admin: false,
+            messages: [
+                {
+                    sent: true,
+                    picture: false,
+                    text: "Hej, šefe, koji ti je vrag?"
+                },
+                {
+                    sent: false,
+                    picture: false,
+                    text: "E, sad si moj, ti zekonjo"
+                },
+                {
+                    sent: true,
+                    picture: false,
+                    text: "Je li, šefe, tebi se baš ide u buvaru, a?"
+                }
+            ]
+        },
+        {
+            id: 3,
+            name: "Looney Tunes",
+            picture: "@Url.Content("~/Content/img/ltunes.jpg")",
+            admin: true,
+            group: true,
+            members: [
+                {
+                    name: "Patak Dača",
+                    picture: "@Url.Content("~/Content/img/daca.jpg")",
+                },
+                {
+                    name: "Elmer Davež",
+                    picture: "@Url.Content("~/Content/img/elmer.png")",
+                }
+            ],
+            messages: [
+                {
+                    sent: false,
+                    sender: "Patak Dača",
+                    text: "Sezona zečeva",
+                    senderpic: "@Url.Content("~/Content/img/daca.jpg")",
+                },
+                {
+                    sent: true,
+                    text: "Sezona pataka",
+                    senderpic: "@Url.Content("~/Content/img/dusko.jpg")",
+                },
+                {
+                    sent: false,
+                    sender: "Patak Dača",
+                    text: "Sezona zečeva",
+                    senderpic: "@Url.Content("~/Content/img/daca.jpg")",
+                },
+                {
+                    sent: true,
+                    text: "Sezona pataka",
+                    senderpic: "@Url.Content("~/Content/img/dusko.jpg")",
+                },
+                {
+                    sent: false,
+                    sender: "Patak Dača",
+                    text: "Sezona zečeva",
+                    senderpic: "@Url.Content("~/Content/img/daca.jpg")",
+                },
+                {
+                    sent: true,
+                    text: "Sezona zečeva",
+                    senderpic: "@Url.Content("~/Content/img/dusko.jpg")",
+                },
+                {
+                    sent: false,
+                    sender: "Patak Dača",
+                    text: "Sezona pataka, PUCAJ!",
+                    senderpic: "@Url.Content("~/Content/img/daca.jpg")",
+                },
+                {
+                    sent: false,
+                    sender: "Elmer Davež",
+                    senderpic: "@Url.Content("~/Content/img/elmer.png")",
+                    sentpic: "@Url.Content("~/Content/img/duckseason.png")",
+                },
+            ]
+        },
+        {
+            id: 4,
+            name: "Space Jam",
+            picture: "@Url.Content("~/Content/img/spacejam.gif")",
+            admin: false,
+            group: true,
+            members: [
+                {
+                    name: "Patak Dača",
+                    picture: "@Url.Content("~/Content/img/daca.jpg")",
+                },
+            {
+                name: "Elmer Davež",
+                picture: "@Url.Content("~/Content/img/elmer.png")",
+            }
+            ],
+            messages: [
+                {
+                    sent: false,
+                    sender: "Patak Dača",
+                    text: "Sezona zečeva",
+                    senderpic: "@Url.Content("~/Content/img/daca.jpg")",
+                },
+            {
+                sent: true,
+                text: "Sezona pataka",
+                senderpic: "@Url.Content("~/Content/img/dusko.jpg")",
+            },
+            {
+                sent: false,
+                sender: "Patak Dača",
+                text: "Sezona zečeva",
+                senderpic: "@Url.Content("~/Content/img/daca.jpg")",
+            },
+            {
+                sent: true,
+                text: "Sezona pataka",
+                senderpic: "@Url.Content("~/Content/img/dusko.jpg")",
+            },
+            {
+                sent: false,
+                sender: "Patak Dača",
+                text: "Sezona zečeva",
+                senderpic: "@Url.Content("~/Content/img/daca.jpg")",
+            },
+            {
+                sent: true,
+                text: "Sezona zečeva",
+                senderpic: "@Url.Content("~/Content/img/dusko.jpg")",
+            },
+            {
+                sent: false,
+                sender: "Patak Dača",
+                text: "Sezona pataka, PUCAJ!",
+                senderpic: "@Url.Content("~/Content/img/daca.jpg")",
+            },
+            {
+                sent: false,
+                sender: "Elmer Davež",
+                senderpic: "@Url.Content("~/Content/img/elmer.png")",
+                sentpic: "@Url.Content("~/Content/img/duckseason.png")",
+            },
+            ]
+        },
+        {
+            id: 5,
+            name: "Pepe Le Tvor",
+            picture: "@Url.Content("~/Content/img/pepe.png")",
+            admin: false,
+            isRequest: true,
+            sent: false,
+            messages: []
+        },
+    ]
 </script>
 <style>
     @@media screen and (max-width: 500px) {
@@ -31,7 +254,7 @@
     <div class="modal-inner">
         <div id="zahtev-poslat" style="display:none;float:left;font-family:'Segoe UI';padding-left:10px;font-size:12px">Zahtev poslat</div>
         <a href="#"><div style="float:right;padding-right:16px;font-family:'Segoe UI'" onclick="closeModal()"><i class="fa fa-close pull-right" aria-hidden="true"></i></div></a><br />
-        <input type="text" class="form-control" id="friend-search" placeholder="Kucajte ime prijatelja" onkeyup="searchUsers(event)" />
+        <input type="text" class="form-control" id="friend-search" placeholder="Kucajte ime prijatelja" onkeyup="refreshFriends()" />
         <ul id="friend-list"></ul>
     </div>
 </div>

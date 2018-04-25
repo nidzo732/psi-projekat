@@ -1,8 +1,6 @@
-﻿<form id="picture-upload" method="post" action="@Url.Action("MyPicture", "User")" enctype="multipart/form-data">
-    <input type="file" id="fileupload" name="picture" accept="image/*" style="display:none" onchange="uploadFile()" />
-</form>
+﻿<input type="file" id="fileupload" style="display:none" onchange="uploadFile()" />
 <div style="width:100%">
-    <img id="profilepic" style="width:400px;height:400px;border-radius:50%;background-size:contain;margin:auto;display:block" src="@Url.Action("MyPicture", "User")" />"
+    <img id="profilepic" style="width:400px;height:400px;border-radius:50%;background-size:contain;margin:auto;display:block" src="@Url.Content("~/Content/img/dusko.jpg")" />"
 </div>
 <div style="width:100%">
     <div><a href="#" onclick="$('#fileupload').click()"><i class="fa fa-file-picture-o" style="width:100%;text-align:center"><span style="font-family:'Segoe UI';">PROMENI SLIKU</span></i></a></div>
@@ -12,7 +10,18 @@
 </div>
 <script>
     function uploadFile() {
-        $("#picture-upload").submit();
+        readURL($("#fileupload")[0])
+    }
+    function readURL(input, ng) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $("#profilepic").attr("src", e.target.result);
+                $("#menu-profile-pic").attr("src", e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
     }
     function deleteAccount() {
         openPrompt("Ako potvrdite brisanje, biće obrisan vaš nalog kao i sve poruke koje ste poslali. Da li želite da nastavite sa brisanjem",

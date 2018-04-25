@@ -1,9 +1,4 @@
-﻿@using BrzeBoljeJeftinije.Messenger.UI.Helpers
-@Scripts.Render("~/bundles/login")
-<script>
-    var signatureAuthToken = "@SessionData.SignatureAuthToken"
-</script>
-<style>
+﻿<style>
     .bgimg-1 {
         background-position: center;
         background-size: cover;
@@ -64,6 +59,34 @@
     span.psw {
         float: right;
         padding-top: 16px;
+    }
+
+    /* The Modal (background) */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        padding-top: 60px;
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
+        border: 1px solid #888;
+        width: 23%; /* Could be more or less, depending on screen size */
+    }
+    @@media screen and (max-width: 900px) {
+        .modal-content{
+            width:80%
+        }
     }
 
     /* The Close Button (x) */
@@ -127,16 +150,7 @@
         <br>
         <br>
         <span class="w3-jumbo w3-hide-small">Say Hello to the world!</span><br>
-        <p>
-            @if (Config.SimLoginEnabled)
-            {
-                <button onclick="document.getElementById('id01').style.display='block'" class="w3-button w3-black w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off">Prijavite se</button>
-            }
-            else
-            {
-                <button onclick="doCardLogin()" class="w3-button w3-black w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off">Prijavite se</button>
-            }
-        </p>
+        <p><button onclick="document.getElementById('id01').style.display='block'" class="w3-button w3-black w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off">Prijavite se</button></p>
     </div>
 </header>
 
@@ -180,8 +194,8 @@
     </div>
 *@
 <!-- Sign in button. -->
-<div id="id01" class="modal" style="z-index:1">
-    <form class="modal-content animate" action="/Messages/Index" method="get" style="width:50%" onsubmit="doLogin(); return false;">
+<div id="id01" class="modal">
+    <form class="modal-content animate" action="/Messages/Index" method="get" style="width:50%">
         <div class="container">
             <input type="radio" name="type" value="pinLgn" required style="padding: 10px" checked="checked" id="login_real"><label for="login_real">&nbsp&nbsp PRIJAVITE SE UPOTREBOM LIČNE KARTE</label><br /><br />
             <input type="radio" name="type" value="simLgn" required id="login_sim"><label for="login_sim"> &nbsp&nbsp PRIJAVITE SE U SIMULACIONOM REŽIMU</label><br /><br />

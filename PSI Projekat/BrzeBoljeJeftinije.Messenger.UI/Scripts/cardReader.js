@@ -22,6 +22,13 @@ cardReader.init = function () {
     cardReader.promises = {}
     cardReader.rejects = {}
 
+    function ping() {
+        var request = {
+            event: "HELLO"
+        };
+        cardReader.sendMessage(request);
+    }
+
     function isChrome() {
         var isChromium = window.chrome,
           winNav = window.navigator,
@@ -68,17 +75,6 @@ cardReader.encrypt=async function(payload)
         cardReader.promises[rqId] = resolve;
         cardReader.rejects[rqId] = reject;
         cardReader.sendMessage({ "type": "encrypt", "payload": btoa(payload), "requestId":  rqId})
-    });
-    var result=await promise;
-    return result.data.payload;
-}
-cardReader.sign=async function(payload)
-{
-    promise = new Promise(function (resolve, reject) {
-        var rqId = cardReader.requestCount++;
-        cardReader.promises[rqId] = resolve;
-        cardReader.rejects[rqId] = reject;
-        cardReader.sendMessage({ "type": "sign", "payload": payload, "requestId":  rqId})
     });
     var result=await promise;
     return result.data.payload;

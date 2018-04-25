@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BrzeBoljeJeftinije.Messenger.DB.Entities
 {
-    public class Attachment
+    class Attachment
     {
         public int Id { get; set; }
         public int MessageId { get; set; }
