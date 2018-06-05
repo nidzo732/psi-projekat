@@ -1,33 +1,22 @@
-﻿/*
-    Ovo je javascript biblioteka za komunikaciju sa ekstenzijom.
-    Koristi se na sajtu koji bi hteo da pristupi licnoj karti
+﻿/**
+ * JavaScript biblioteka za komunikaciju sa ekstenzijom koja pristupa ličnoj karti
+ * Autor: Nikola Pavlović
 */
 
 
 cardReader = {};
 
-/* 
-   ID-jevi ekstenzije, izmeniti po potrebi.
-   ID za Chrome dodeljuje Google prodavnica
-   ID za Firefox stoji u manifestu
-*/
-cardReader.chromeID = 'iikmofkdhekjefoioggagppkepjfnbbp'
+cardReader.chromeID = 'lammmgffjnohfeoiceccbmenhcjadooj'
 cardReader.firefoxID = 'messenger.cardreader@brzeboljejeftinije.rs'
 
 cardReader.init = function () {
-    cardReader.requestCount=0
+    cardReader.requestCount = 0
+    cardReader.timeouts = {}
     var nativeHostResponded = false;
 
     var ack_wait_timeout = 10000;
     cardReader.promises = {}
     cardReader.rejects = {}
-
-    function ping() {
-        var request = {
-            event: "HELLO"
-        };
-        cardReader.sendMessage(request);
-    }
 
     function isChrome() {
         var isChromium = window.chrome,
@@ -52,12 +41,17 @@ cardReader.init = function () {
         cardReader.extensionId = cardReader.firefoxID;
     }
 
-    function listener(event) {
-        if (event.data.source == cardReader.extensionId) {
-            if (event.data.status == "OK") {
+    function listener(event)
+    {
+        if (event.data.source == cardReader.extensionId)
+        {
+            clearTimeout(cardReader.timeouts[event.data.request.requestId]);
+            if (event.data.status == "OK")
+            {
                 cardReader.promises[event.data.request.requestId](event)
             }
-            else {
+            else 
+            {
                 cardReader.rejects[event.data.request.requestId](event)
             }
         }
@@ -68,15 +62,101 @@ cardReader.init = function () {
         
         }, ack_wait_timeout);
 }
-cardReader.encrypt=async function(payload)
+cardReader.getAesKey = async function ()
+{
+    promise = new Promise(function (resolve, reject)
+    {
+        var rqId = cardReader.requestCount++;
+        cardReader.promises[rqId] = resolve;
+        cardReader.rejects[rqId] = reject;
+        cardReader.sendMessage({ "type": "getAesKey", "requestId": rqId })
+    });
+    var result = await promise;
+    return result.data.payload;
+}
+cardReader.aesEncrypt = async function (payload, key)
+{
+    promise = new Promise(function (resolve, reject)
+    {
+        var rqId = cardReader.requestCount++;
+        cardReader.promises[rqId] = resolve;
+        cardReader.rejects[rqId] = reject;
+        cardReader.sendMessage({ "type": "aesEncrypt", "payload": btoa(payload), key:key, "requestId": rqId })
+    });
+    var result = await promise;
+    return result.data.payload;
+}
+
+cardReader.aesDecrypt = async function (payload, key)
+{
+    promise = new Promise(function (resolve, reject)
+    {
+        var rqId = cardReader.requestCount++;
+        cardReader.promises[rqId] = resolve;
+        cardReader.rejects[rqId] = reject;
+        cardReader.sendMessage({ "type": "aesDecrypt", "payload": payload, key: key, "requestId": rqId })
+    });
+    var result = await promise;
+    return atob(result.data.payload);
+}
+cardReader.rsaEncrypt = async function (payload, key, cert)
+{
+    promise = new Promise(function (resolve, reject)
+    {
+        var rqId = cardReader.requestCount++;
+        cardReader.promises[rqId] = resolve;
+        cardReader.rejects[rqId] = reject;
+        cardReader.sendMessage({ "type": "rsaEncrypt", "payload": btoa(payload), key: key, cert:cert, "requestId": rqId })
+    });
+    var result = await promise;
+    return result.data.payload;
+}
+
+cardReader.rsaDecrypt = async function (payload)
+{
+    promise = new Promise(function (resolve, reject)
+    {
+        var rqId = cardReader.requestCount++;
+        cardReader.promises[rqId] = resolve;
+        cardReader.rejects[rqId] = reject;
+        cardReader.sendMessage({ "type": "rsaDecrypt", "payload": payload, "requestId": rqId, "notimeout": true })
+    });
+    var result = await promise;
+    return atob(result.data.payload);
+}
+cardReader.rsaDecryptMulti = async function (payload)
+{
+    promise = new Promise(function (resolve, reject)
+    {
+        var rqId = cardReader.requestCount++;
+        cardReader.promises[rqId] = resolve;
+        cardReader.rejects[rqId] = reject;
+        cardReader.sendMessage({ "type": "rsaDecryptMulti", "payload": payload, "requestId": rqId, "notimeout": true })
+    });
+    var result = await promise;
+    return result.data.payload;
+}
+cardReader.sign=async function(payload)
 {
     promise = new Promise(function (resolve, reject) {
         var rqId = cardReader.requestCount++;
         cardReader.promises[rqId] = resolve;
         cardReader.rejects[rqId] = reject;
-        cardReader.sendMessage({ "type": "encrypt", "payload": btoa(payload), "requestId":  rqId})
+        cardReader.sendMessage({ "type": "sign", "payload": payload, "requestId":  rqId})
     });
     var result=await promise;
+    return result.data.payload;
+}
+cardReader.verify = async function (payload, signature, key, cert)
+{
+    promise = new Promise(function (resolve, reject)
+    {
+        var rqId = cardReader.requestCount++;
+        cardReader.promises[rqId] = resolve;
+        cardReader.rejects[rqId] = reject;
+        cardReader.sendMessage({ "type": "verify", "payload": payload, signature: signature, key: key, cert: cert, "requestId": rqId })
+    });
+    var result = await promise;
     return result.data.payload;
 }
 cardReader.getCertificate = async function () {
@@ -84,21 +164,34 @@ cardReader.getCertificate = async function () {
         var rqId = cardReader.requestCount++;
         cardReader.promises[rqId] = resolve;
         cardReader.rejects[rqId] = reject;
-        cardReader.sendMessage({ "type": "export", "requestId": rqId })
+        cardReader.sendMessage({ "type": "getCertificate", "requestId": rqId })
     });
     var result = await promise;
     return result.data.payload;
 }
-cardReader.decrypt=async function(payload)
+cardReader.check = async function ()
 {
-    promise = new Promise(function (resolve, reject) {
+    promise = new Promise(function (resolve, reject)
+    {
         var rqId = cardReader.requestCount++;
         cardReader.promises[rqId] = resolve;
         cardReader.rejects[rqId] = reject;
-        cardReader.sendMessage({ "type": "decrypt", "payload": payload, "requestId":  rqId})
+        cardReader.sendMessage({ "type": "check", "requestId": rqId })
     });
-    var result=await promise;
-    return atob(result.data.payload);
+    var result = await promise;
+    return result.data.payload=="true";
+}
+cardReader.getPublic = async function ()
+{
+    promise = new Promise(function (resolve, reject)
+    {
+        var rqId = cardReader.requestCount++;
+        cardReader.promises[rqId] = resolve;
+        cardReader.rejects[rqId] = reject;
+        cardReader.sendMessage({ "type": "getPublic", "requestId": rqId })
+    });
+    var result = await promise;
+    return result.data.payload;
 }
 cardReader.ping = async function ()
 {
@@ -106,10 +199,10 @@ cardReader.ping = async function ()
         var rqId = cardReader.requestCount++;
         cardReader.promises[rqId] = resolve;
         cardReader.rejects[rqId] = reject;
-        cardReader.sendMessage({ "type": "echo", "requestId": rqId })
+        cardReader.sendMessage({ "type": "echo", "requestId": rqId, "notimeout":true })
         setTimeout(function () {
             reject("fail");
-        }, 2000);
+        }, 10000);
     });
     try {
         var result = await promise;
@@ -120,7 +213,15 @@ cardReader.ping = async function ()
     }
     return true;
 }
-cardReader.sendMessage = function (message) {
+cardReader.sendMessage = function (message)
+{
+    if (message.requestId !== null && !(message.notimeout))
+    {
+        cardReader.timeouts[message.requestId] = setTimeout(() =>
+        {
+            cardReader.rejects[message.requestId]({ data: { status: "TIMEOUT" } });
+        }, 10000);
+    }
     message.source = window.location.href;
     message.destination = cardReader.extensionId
     window.postMessage(message, "*");

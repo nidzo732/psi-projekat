@@ -251,7 +251,7 @@ span.psw {
 }
 
 .sent-img {
-    width: 300px
+    max-width: 300px
 }
 
 #sent-text {
@@ -341,7 +341,7 @@ input[type='text'] {
     margin-top:10px
 }
 
-#newgroup-name, #groupedit-name {
+#group-edit-name{
     font-size: 0.8em;
     width: 85%;
     display: block;
@@ -409,4 +409,7 @@ input[type='text'] {
 .chip.selected-chip{
     font-weight:bold;
     background:#a0a0a0;
+}
+.chip.unread-chip{
+    font-weight:bold
 }

@@ -1,8 +1,8 @@
 ﻿{
   "manifest_version": 2,
   "name": "brzeboljejeftinije.messenger.cardreader",
-  "version": "1.0.0",
-  "description": "An extension for cryptographic operations with serbian ID cards",
+  "version": "1.0.1",
+  "description": "University experiment, an extension for cryptographic operations with serbian ID cards",
   "icons": {
     "48": "icons/icon48.png",
     "32": "icons/icon32.png",

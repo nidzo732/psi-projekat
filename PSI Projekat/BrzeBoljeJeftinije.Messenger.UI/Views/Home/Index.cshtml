@@ -1,4 +1,9 @@
-﻿<style>
+﻿@using BrzeBoljeJeftinije.Messenger.UI.Helpers
+@Scripts.Render("~/bundles/login")
+<script>
+    var signatureAuthToken = "@SessionData.SignatureAuthToken"
+</script>
+<style>
     .bgimg-1 {
         background-position: center;
         background-size: cover;
@@ -61,34 +66,6 @@
         padding-top: 16px;
     }
 
-    /* The Modal (background) */
-    .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgb(0,0,0); /* Fallback color */
-        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-        padding-top: 60px;
-    }
-
-    /* Modal Content/Box */
-    .modal-content {
-        background-color: #fefefe;
-        margin: 5% auto 15% auto; /* 5% from the top, 15% from the bottom and centered */
-        border: 1px solid #888;
-        width: 23%; /* Could be more or less, depending on screen size */
-    }
-    @@media screen and (max-width: 900px) {
-        .modal-content{
-            width:80%
-        }
-    }
-
     /* The Close Button (x) */
     .close {
         position: absolute;
@@ -147,21 +124,30 @@
 <!-- Header -->
 <header class="bgimg-1 w3-display-container w3-grayscale-min" id="home">
     <div class="w3-display-left w3-text-white" style="padding:48px;">
-        <br>
-        <br>
-        <span class="w3-jumbo w3-hide-small">Say Hello to the world!</span><br>
-        <p><button onclick="document.getElementById('id01').style.display='block'" class="w3-button w3-black w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off">Prijavite se</button></p>
+        <span class="w3-jumbo w3-hide-small" >Say Hello to the world!</span><br><br><br>
+        <p>
+    @if (Config.SimLoginEnabled)
+            {
+                <button onclick="document.getElementById('id01').style.display='block'" class="w3-button w3-black w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off" style="width:30%">Prijavite se</button>
+            }
+            else
+            {
+                <button onclick="doCardLogin()" class="w3-button w3-black w3-padding-large w3-large w3-margin-top w3-opacity w3-hover-opacity-off" style="width:30%">Prijavite se</button>
+            }
+            <p class="w3-black w3-padding-large w3-large w3-opacity w3-hover-opacity-off">
+                Prijavom prihvatate <a href="@Url.Action("Privacy")" style="font-weight:bold;text-decoration:underline">Politiku privatnosti</a>
+            </p>
+        </p>
     </div>
 </header>
 
-<div class="w3-container" style="padding:67px 0px; height: 100vh" id="manual">
+<div class="w3-container w3-white" style="padding:67px 0px; height: 100vh" id="manual">
     <h3 class="w3-center w3-project" style="font-weight: 800">UPUTSTVO</h3>
-    <p style="padding:16px">Na sledećim linkovima možete naći uputstvo za podešavanje programa neophodnih za korišćenje lične
-    karte za prijavu na sajt</p>
+    <p style="padding:16px">Na sledećim linkovima možete naći uputstvo za podešavanje programa neophodnih Hello Messenger-a
     <p style="padding:16px">
         <ul>
-            <li><a href="#">Upustvo za instalaciju programa od MUP Srbije <i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></li>
-            <li><a href="#">Upustvo za instalaciju ekstenzije za šifrovanje <i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></li>
+            <!--<li><a href="http://ca.mup.gov.rs/download.html">Stranica za instalaciju programa od MUP Srbije</a></li>-->
+            <li><a href="@Url.Content("~/Content/Files/Uputstvo_za_program_i_ekstenziju.pdf")">Upustvo za instalaciju ekstenzije i programa za šifrovanje <i class="fa fa-file-pdf-o" aria-hidden="true"></i></a></li>
         </ul>
     </p>
 </div>
@@ -194,11 +180,11 @@
     </div>
 *@
 <!-- Sign in button. -->
-<div id="id01" class="modal">
-    <form class="modal-content animate" action="/Messages/Index" method="get" style="width:50%">
+<div id="id01" class="modal" style="z-index:1">
+    <form class="modal-content animate" action="/Messages/Index" method="get" style="width:50%" onsubmit="doLogin(); return false;">
         <div class="container">
-            <input type="radio" name="type" value="pinLgn" required style="padding: 10px" checked="checked" id="login_real"><label for="login_real">&nbsp&nbsp PRIJAVITE SE UPOTREBOM LIČNE KARTE</label><br /><br />
-            <input type="radio" name="type" value="simLgn" required id="login_sim"><label for="login_sim"> &nbsp&nbsp PRIJAVITE SE U SIMULACIONOM REŽIMU</label><br /><br />
+            <input type="radio" name="type" value="pinLgn" required style="padding: 10px" checked="checked" id="login_real"><label for="login_real" style="font-weight:normal">&nbsp&nbsp PRIJAVITE SE UPOTREBOM LIČNE KARTE</label><br /><br />
+            <input type="radio" name="type" value="simLgn" required id="login_sim"><label for="login_sim" style="font-weight:normal"> &nbsp&nbsp PRIJAVITE SE U SIMULACIONOM REŽIMU</label><br /><br />
             <button type="submit" style="padding: 4px 8px">PRIJAVITE SE</button>
         </div>
     </form>
@@ -217,7 +203,7 @@
 </script>
 
 <!-- Team Section -->
-<div class="w3-container w3-light-grey" style="padding:67px 0px; height: 100vh" id="team">
+<div class="w3-container w3-light-gray" style="padding:67px 0px;" id="team">
     <h3 class="w3-center w3-project" style="font-weight: 800">TIM</h3>
     <div class="w3-row-padding w3-grayscale" style="margin-top:16px">
         <div class="w3-col l3 m6 w3-margin-bottom">
@@ -225,9 +211,9 @@
                 <img src="@Url.Content("~/Content/img/jovan.png")" alt="Jovan Stevanovic" style="width:100%; height: 40vh">
                 <div class="w3-container" style="height: 40vh">
                     <h3 style="margin-bottom: 0px">Jovan Stevanovic</h3>
-                    <p class="w3-opacity" style="margin-bottom: 0px; margin-top: 0px">Front-end engineer</p>
-                    <p style="margin-bottom: 0px; margin-top: 0px">Ovde cemo napisati po neku recenicu o sebi.</p>
-                    <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i> Contact</button></p>
+                    <p class="w3-opacity" style="margin-bottom: 0px; margin-top: 0px">Front-end inženjer</p>
+                    <p style="margin-bottom: 0px; margin-top: 0px">Dizajner kompetnog front-end dela projekta.</p>
+                    <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i> Kontakt</button></p>
                 </div>
             </div>
         </div>
@@ -236,9 +222,9 @@
                 <img src="@Url.Content("~/Content/img/nikola.jpg")" alt="Nikola Pavlovic" style="width:100%; height: 40vh">
                 <div class="w3-container" style="height: 40vh">
                     <h3 style="margin-bottom: 0px;">Nikola Pavlovic</h3>
-                    <p class="w3-opacity" style="margin-bottom: 0px; margin-top: 0px">Team leader</p>
-                    <p style="margin-bottom: 0px; margin-top: 0px">Ovde cemo napisati po neku recenicu o sebi.</p>
-                    <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i> Contact</button></p>
+                    <p class="w3-opacity" style="margin-bottom: 0px; margin-top: 0px">Vođa tima</p>
+                    <p style="margin-bottom: 0px; margin-top: 0px">Vodja tima. Zaduzen za koordinaciju i ispravke bagova.</p>
+                    <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i> Kontakt</button></p>
                 </div>
             </div>
         </div>
@@ -247,9 +233,9 @@
                 <img src="@Url.Content("~/Content/img/uros.jpg")" alt="Uros Milivojevic" style="width:100%; height: 40vh">
                 <div class="w3-container" style="height: 40vh">
                     <h3 style="margin-bottom: 0px;">Uros Milivojevic</h3>
-                    <p class="w3-opacity" style="margin-bottom: 0px; margin-top: 0px">Database engeener</p>
-                    <p style="margin-bottom: 0px; margin-top: 0px">Ovde cemo napisati po neku recenicu o sebi.</p>
-                    <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i> Contact</button></p>
+                    <p class="w3-opacity" style="margin-bottom: 0px; margin-top: 0px">Back-end inženjer</p>
+                    <p style="margin-bottom: 0px; margin-top: 0px">Dizajner kompetnog back-end dela projekta.</p>
+                    <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i> Kontakt</button></p>
                 </div>
             </div>
         </div>
@@ -258,9 +244,9 @@
                 <img src="@Url.Content("~/Content/img/marko.jpg")" alt="Marko Milivojevic" style="width:100%; height: 40vh">
                 <div class="w3-container" style="height: 40vh">
                     <h3 style="margin-bottom: 0px;">Marko Milivojevic</h3>
-                    <p class="w3-opacity" style="margin-bottom: 0px; margin-top: 0px">Database engeener</p>
-                    <p style="margin-bottom: 0px; margin-top: 0px">Ovde cemo napisati po neku recenicu o sebi.</p>
-                    <p><button class="w3-button w3-light-grey w3-block"><i class="fa fa-envelope"></i> Contact</button></p>
+                    <p class="w3-opacity" style="margin-bottom: 0px; margin-top: 0px">Back-end inženjer</p>
+                    <p style="margin-bottom: 0px; margin-top: 0px">Dizajner kompetnog back-end dela projekta.</p>
+                    <p><button class="w3-button w3-light-gray w3-block"><i class="fa fa-envelope"></i> Kontakt</button></p>
                 </div>
             </div>
         </div>
@@ -268,13 +254,13 @@
 </div>
 
 <!-- Contact Section -->
-<div class="w3-container w3-white" style="padding:67px 0px; height: 100vh;" id="contact">
+<div class="w3-container" style="padding:67px 0px; height: 100vh;" id="contact">
     <h3 class="w3-center w3-project" style="font-weight: 800">KONTAKT</h3>
     <div class="w3-row-padding" style="margin-top:16px">
         <div class="w3-half">
             <p><i class="fa fa-map-marker fa-fw w3-xxlarge w3-margin-right"></i> Beograd, Srbija</p>
-            <p><i class="fa fa-phone fa-fw w3-xxlarge w3-margin-right"></i> Telefon: +381 11 3462-809</p>
-            <p><i class="fa fa-envelope fa-fw w3-xxlarge w3-margin-right"> </i> Email: alohaMsg@outlook.com</p>
+            <p><i class="fa fa-phone fa-fw w3-xxlarge w3-margin-right"></i> Telefon: +381 11 34-62-809</p>
+            <p><i class="fa fa-envelope fa-fw w3-xxlarge w3-margin-right"> </i> Email: helloMsg@outlook.com</p>
             <br>
         </div>
         <div class="w3-half">
@@ -287,8 +273,8 @@
             </div>
         </div>
     </div>
-    <div class="w3-center" style="margin-top: 64px">
-        <a href="#home" class="w3-button w3-black"><i class="fa fa-arrow-up w3-margin-right"></i>To the top</a>
+    <div class="w3-center w3-white" style="margin-top: 64px">
+        <a href="#home" class="w3-button w3-black"><i class="fa fa-arrow-up w3-margin-right"></i>Na vrh</a>
         <div class="w3-xlarge">
             <i class="fa fa-facebook-official w3-hover-opacity"></i>
             <i class="fa fa-instagram w3-hover-opacity"></i>
@@ -297,7 +283,10 @@
             <i class="fa fa-twitter w3-hover-opacity"></i>
             <i class="fa fa-linkedin w3-hover-opacity"></i>
         </div>
-        <p style="margin-top: 0px">Powered by Брже, боље, јефтиније &nbsp <img src="@Url.Content("~/Content/img/logo.png")" w width="3%" height="3%"></img></p>
+        <p style="margin-top: 0px"> 
+            Razvijeno od strane tima: Brže, bolje, jefitnije &nbsp 
+            <img src="@Url.Content("~/Content/img/logo.png")" style="width:3%; height:3%">
+        </p>
     </div>
 </div>
 

@@ -659,3 +659,6 @@
 #message-content .fa-trash{
     font-size:2em;
 }
+#attachment-indicator.attachment-indicator-active{
+    color:blue
+}

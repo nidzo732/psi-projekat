@@ -1,6 +1,6 @@
 function validSender(hostname)
 {
-    var okHostnames = ["localhost",]
+    var okHostnames = ["localhost", "psi-messenger-prod.azurewebsites.net"];
     return okHostnames.indexOf(hostname) != -1;
 }
 
@@ -18,11 +18,13 @@ chrome.runtime.onConnect.addListener( function(port) {
 	{
 	    console.log("Accepted request from: " + port.sender.url);
 	}
-	port.onMessage.addListener(function (message, sender) {
+    port.onMessage.addListener(function (message, sender)
+    {
 		return sender.port.postMessage(message); 
 	} );
 
-	port.port.onMessage.addListener(function (message, sender) {
+    port.port.onMessage.addListener(function (message, sender)
+    {
 		return sender.port.postMessage(message);
 	} );
 	

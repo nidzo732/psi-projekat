@@ -1,6 +1,6 @@
 function validSender(hostname)
 {
-    var okHostnames = ["localhost",]
+    var okHostnames = ["localhost", "psi-messenger-prod.azurewebsites.net"];
     return okHostnames.indexOf(hostname) != -1;
 }
 

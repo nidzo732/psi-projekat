@@ -1,4 +1,8 @@
-﻿using System;
+﻿/**
+ * CryptoHelper.cs
+ * Autor: Nikola Pavlović
+ */
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -11,6 +15,13 @@ using System.Threading.Tasks;
 
 namespace CardCrypto
 {
+    /**
+     * <summary>Helper klasa za kriptografske operacije</summary>
+     * 
+     *  <remarks>
+     *  Verzija: 1.0
+     *  </remarks>
+     */
     static class CryptoHelper
     {
         private static RNGCryptoServiceProvider rngCsp = new RNGCryptoServiceProvider();
@@ -53,25 +64,43 @@ namespace CardCrypto
             rngCsp.GetBytes(key);
             return key;
         }
+        public static string GetAESKey()
+        {
+            return Convert.ToBase64String(getRandomBlock());
+        }
         public static string AESEncrypt(string plaintext, ref string key)
         {
             if (key == null)
             {
                 key = Convert.ToBase64String(getRandomBlock());
             }
+            if(key=="sim")
+            {
+                return plaintext;
+            }
             AesCryptoServiceProvider aesCsp = new AesCryptoServiceProvider();
             aesCsp.Key = Convert.FromBase64String(key);
             var aesIV = aesCsp.IV;
             var encryptor = aesCsp.CreateEncryptor(Convert.FromBase64String(key), aesIV);
-            var mStream = new MemoryStream();
-            var cryptoStream = new CryptoStream(mStream, encryptor, CryptoStreamMode.Write);
-            var cryptoWriter = new StreamWriter(cryptoStream);
-            cryptoWriter.Write(Convert.FromBase64String(plaintext));
-            var ciphertext = Convert.ToBase64String(mStream.ToArray());
-            return Convert.ToBase64String(aesIV) + "$" + ciphertext;
+            using (var mStream = new MemoryStream())
+            {
+                using (var cryptoStream = new CryptoStream(mStream, encryptor, CryptoStreamMode.Write))
+                {
+                    using (var cryptoWriter = new BinaryWriter(cryptoStream))
+                    {
+                        cryptoWriter.Write(Convert.FromBase64String(plaintext));
+                    }
+                    var ciphertext = Convert.ToBase64String(mStream.ToArray());
+                    return Convert.ToBase64String(aesIV) + "$" + ciphertext;
+                }
+            }
         }
         public static string AESDecrypt(string encrypted, string key)
         {
+            if(key=="sim")
+            {
+                return encrypted;
+            }
             var parts = encrypted.Split('$');
             var iv = Convert.FromBase64String(parts[0]);
             var ciphetext = Convert.FromBase64String(parts[1]);
@@ -79,33 +108,93 @@ namespace CardCrypto
             aesCsp.Key = Convert.FromBase64String(key);
             aesCsp.IV = iv;
             var decryptor = aesCsp.CreateDecryptor(Convert.FromBase64String(key), iv);
-            var mStream = new MemoryStream();
-            var cryptoStream = new CryptoStream(mStream, decryptor, CryptoStreamMode.Write);
-            var cryptoWriter = new StreamWriter(cryptoStream);
-            cryptoWriter.Write(ciphetext);
-            var plaintext = Convert.ToBase64String(mStream.ToArray());
-            return plaintext;
-        }
-        public static string RSAEncrypt(string plaintext, string cert)
-        {
-            byte[] plaintextBytes = Convert.FromBase64String(plaintext);
-            X509Certificate2 crt = null;
-            if (cert == null)
+            using (var mStream = new MemoryStream(ciphetext))
             {
-                crt = GetCert(false);
+                using (var cryptoStream = new CryptoStream(mStream, decryptor, CryptoStreamMode.Read))
+                {
+                    using (var outStream = new MemoryStream())
+                    {
+                        byte[] buffer = new byte[16];
+                        int cnt = 16;
+                        while(cnt>0)
+                        {
+                            cnt = cryptoStream.Read(buffer, 0, 16);
+                            if(cnt>0)
+                            {
+                                outStream.Write(buffer, 0, cnt);
+                            }
+                        }
+                        return Convert.ToBase64String(outStream.ToArray());
+                    }
+                }
+            }
+                
+        }
+        public static string RSAEncrypt(string plaintext, string cert, string key)
+        {
+            if("sim"==cert || "sim"==key)
+            {
+                return plaintext;
+            }
+            byte[] plaintextBytes = Convert.FromBase64String(plaintext);
+            RSACryptoServiceProvider csp = null;
+            if(cert!=null)
+            {
+                csp = LoadCert(cert).PublicKey.Key as RSACryptoServiceProvider;
+            }
+            else if(key!=null)
+            {
+                csp = new RSACryptoServiceProvider();
+                csp.FromXmlString(key);
             }
             else
             {
-                crt = LoadCert(cert);
+                csp = GetCert(false).PublicKey.Key as RSACryptoServiceProvider;
             }
-            var provider = crt.PublicKey.Key as RSACryptoServiceProvider;
-            return Convert.ToBase64String(provider.Encrypt(plaintextBytes, false));
+            return Convert.ToBase64String(csp.Encrypt(plaintextBytes, false));
         }
         public static string RSADecrypt(string ciphertext)
         {
             byte[] ciphertextBytes = Convert.FromBase64String(ciphertext);
             var provider = GetProvider(false);
             return Convert.ToBase64String(provider.Decrypt(ciphertextBytes, false));
+        }
+        public static string[] RSADecryptMulti(string[] ciphertext)
+        {
+            byte[][] ciphertextBytes = ciphertext.Select(x=>Convert.FromBase64String(x)).ToArray();
+            var provider = GetProvider(false);
+            return ciphertextBytes.Select(x => Convert.ToBase64String(provider.Decrypt(x, false))).ToArray();
+        }
+        public static string Sign(string payload)
+        {
+            byte[] payloadBytes = Convert.FromBase64String(payload);
+            var provider = GetProvider(false);
+            byte[] signature = provider.SignData(payloadBytes, CryptoConfig.MapNameToOID("SHA256"));
+            return Convert.ToBase64String(signature);
+        }
+        public static bool Verify(string payload, string signature, string cert, string key)
+        {
+            if ("sim" == cert || "sim" == key)
+            {
+                return true;
+            }
+            byte[] payloadBytes = Convert.FromBase64String(payload);
+            byte[] signatureBytes = Convert.FromBase64String(signature);
+            RSACryptoServiceProvider csp = null;
+            if (cert != null)
+            {
+                csp = LoadCert(cert).PublicKey.Key as RSACryptoServiceProvider;
+            }
+            else if (key != null)
+            {
+                csp = new RSACryptoServiceProvider();
+                csp.FromXmlString(key);
+            }
+            else
+            {
+                csp = GetCert(false).PublicKey.Key as RSACryptoServiceProvider;
+            }
+            return csp.VerifyData(payloadBytes, CryptoConfig.MapNameToOID("SHA256"), signatureBytes);
         }
         public static List<string> GetKeyContainers(string providerName)
         {
@@ -201,7 +290,7 @@ namespace CardCrypto
         }
         public static String GetCertificate()
         {
-            var certificate = GetCert(true);
+            var certificate = GetCert(false);
             if (certificate == null) return null;
             return Convert.ToBase64String(certificate.Export(X509ContentType.Cert));
         }
@@ -220,9 +309,8 @@ namespace CardCrypto
         {
             return new X509Certificate2(Convert.FromBase64String(cert));
         }
-        public static bool CardPresentAndCertValid()
+        public static bool CertificateValid(X509Certificate2 certificateToValidate)
         {
-            X509Certificate2 certificateToValidate = GetCert(false);
             if (certificateToValidate == null) return false;
             if (!(certificateToValidate.PublicKey.Key is RSACryptoServiceProvider)) return false;
             X509Certificate2[] authority = GetMUPRSCert();
@@ -249,6 +337,11 @@ namespace CardCrypto
                 .Any(x => authority.Any(y => x.Certificate.Thumbprint == y.Thumbprint));
 
             return valid;
+        }
+        public static bool CardPresentAndCertValid()
+        {
+            X509Certificate2 certificateToValidate = GetCert(false);
+            return CertificateValid(certificateToValidate);
         }
     }
 }

@@ -1,4 +1,8 @@
-﻿using Microsoft.Win32;
+﻿/**
+ * RegisterHost.cs
+ * Autor: Nikola Pavlović
+ */
+using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
@@ -12,9 +16,17 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace CardCrypto
 {
+    /**
+     * <summary>Klasa koja registruje native host pri instalaciji </summary>
+     * 
+     *  <remarks>
+     *  Verzija: 1.0
+     *  </remarks>
+     */
     [RunInstaller(true)]
     public partial class RegisterHost : System.Configuration.Install.Installer
     {
@@ -31,7 +43,7 @@ namespace CardCrypto
             public string manifestFirefox;
             public string assemblyPath;
         }
-        private static string eKeyChrome = "kbmjapfccpkonkbkdkacekebekdmpkmm";
+        private static string eKeyChrome = "lammmgffjnohfeoiceccbmenhcjadooj";
         private static string eKeyFirefox = "messenger.cardreader@brzeboljejeftinije.rs";
         private static string eName = "brzeboljejeftinije.messenger.cardreader";
         public RegisterHost()
@@ -44,7 +56,8 @@ namespace CardCrypto
         {
             base.Install(stateSaver);
             int processId = Process.GetCurrentProcess().Id;
-            string message = string.Format("Please attach the debugger (elevated on Vista or Win 7) to process [{0}].", processId);
+            /*string message = string.Format("Please attach the debugger (elevated on Vista or Win 7) to process [{0}].", processId);
+            MessageBox.Show(message);*/
             Options options = new Options(this.Context.Parameters["assemblypath"]);
             WindowsIdentity id = WindowsIdentity.GetCurrent();
             WindowsPrincipal principal = new WindowsPrincipal(id);

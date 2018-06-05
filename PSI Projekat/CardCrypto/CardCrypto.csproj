@@ -4,32 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{639B2728-1A42-4C60-8E50-B77A43CA0EFE}</ProjectGuid>
+    <ProjectGuid>{1CA2AD70-D58D-45E9-AC18-18D9F58BE531}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>CardCrypto</RootNamespace>
     <AssemblyName>CardCrypto</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
     <SccAuxPath>SAK</SccAuxPath>
     <SccProvider>SAK</SccProvider>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -50,21 +35,17 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>CardCrypto.NativeHost</StartupObject>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Management" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -73,14 +54,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CryptoHelper.cs" />
     <Compile Include="Chrome4Net.NativeMessaging\AsyncResult.cs" />
     <Compile Include="Chrome4Net.NativeMessaging\EndOfInputStreamException.cs" />
     <Compile Include="Chrome4Net.NativeMessaging\NativeMessagingException.cs" />
     <Compile Include="Chrome4Net.NativeMessaging\Port.cs" />
     <Compile Include="Chrome4Net.NativeMessaging\ProtocolErrorException.cs" />
-    <Compile Include="Handlers\EncryptHandler.cs" />
-    <Compile Include="IRequestHandler.cs" />
+    <Compile Include="CryptoHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegisterHost.cs">
@@ -93,49 +72,26 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="ChromeExt.pem" />
-    <None Include="FirefoxExt\manifest.json" />
     <None Include="ChromeExt\manifest.json" />
-    <None Include="MUPCAGradjani.crt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="MUPCAGradjani2.crt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="MUPCAGradjani3.crt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="MUPCARoot.crt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="MUPCARoot3.crt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="FirefoxExt\manifest.json" />
+    <None Include="MUPCAGradjani.crt" />
+    <None Include="MUPCAGradjani2.crt" />
+    <None Include="MUPCAGradjani3.crt" />
+    <None Include="MUPCARoot.crt" />
+    <None Include="MUPCARoot3.crt" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="demopage.html" />
-    <Content Include="FirefoxExt\icons\icon128.png" />
-    <Content Include="FirefoxExt\icons\icon32.png" />
-    <Content Include="FirefoxExt\icons\icon48.png" />
-    <Content Include="FirefoxExt\scripts\background.js" />
-    <Content Include="FirefoxExt\scripts\content.js" />
     <Content Include="ChromeExt\icons\icon128.png" />
     <Content Include="ChromeExt\icons\icon32.png" />
     <Content Include="ChromeExt\icons\icon48.png" />
     <Content Include="ChromeExt\scripts\background.js" />
     <Content Include="ChromeExt\scripts\content.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.5.2 %28x86 and x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
+    <Content Include="FirefoxExt\icons\icon128.png" />
+    <Content Include="FirefoxExt\icons\icon32.png" />
+    <Content Include="FirefoxExt\icons\icon48.png" />
+    <Content Include="FirefoxExt\scripts\background.js" />
+    <Content Include="FirefoxExt\scripts\content.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

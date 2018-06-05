@@ -1,16 +1,38 @@
-﻿$(document).ready(function () {
+﻿/**
+ * Skripta koja se učitava na admin stranici
+ * Autori:
+ * Jovan Stevanović
+ * Nikola Pavlović
+ */
+var previousUserSearchQuery = null;
+var userSearchResult = null;
+$(document).ready(function ()
+{
 
 });
-function searchUsers()
+async function searchUsers(event)
 {
-    var query = $("#user-search").val();
+    if (event.key.length > 1) return;
+    var query = $("#user-search").val().trim();
     $("#user-list-body").html("");
-    query=query.trim();
-    if (query == "") return;
-    for (user in users) {
-        userObject = users[user];
-        if (userObject.name.toUpperCase().indexOf(query.toUpperCase()) == -1) continue;
-        $("#user-list-body").append(renderTableRow(user, userObject.name, userObject.status, userObject.banDate, userObject.picture));
+    if ($("#user-search").val().trim() != "")
+    {
+        if (!(previousUserSearchQuery != null && $("#user-search").val().trim().indexOf(previousUserSearchQuery) != -1 && userSearchResult != null))
+        {
+            userSearchResult = null;
+            blockElementWithMessage("Tražim", "#user-list-body");
+            userSearchResult = await asyncAjax("/Admin/Search",
+                {
+                    name: $("#user-search").val().trim()
+                });
+            $("#user-list-body").unblock();
+        }
+        previousUserSearchQuery = $("#user-search").val().trim();
+        userSearchResult.forEach(function (userObject)
+        {
+            if (userObject.name.toUpperCase().indexOf(query.toUpperCase()) == -1) return;
+            $("#user-list-body").append(renderTableRow(userObject.id, userObject.name, userObject.status, userObject.banDate, userObject.picture));
+        });
     }
 }
 function renderTableRow(userId, name, status, bandate, image)
@@ -31,14 +53,25 @@ function renderTableRow(userId, name, status, bandate, image)
     row.find(".user-ban-date").datepicker("setDate", bandate);
     return row;
 }
-function updateUserStatus(sender)
+async function updateUserStatus(sender)
 {
     var target = $(sender).closest("tr");
     var userId = target.attr("data-user-id");
     var status = target.find(".ban-status").val();
     var date = target.find(".user-ban-date").datepicker("getDate");
-    users[userId].status = status;
-    users[userId].banDate = date;
+    blockElementWithMessage("Ažuriram", target);
+    var response = await asyncAjax("/Admin/UpdateStatus", { Id: userId, Status: status, ExpiryDate: date.toISOString() });
+    target.unblock();
+    userSearchResult = null;
+    if (response.indexOf("FAIL:") == 0)
+    {
+        showAlertBox(response.replace("FAIL:", ""));
+    }
+    else
+    {
+        showMessageBox("Stanje korisnika uspešno promenjeno");
+    }
+    searchUsers();
 }
 var userToDelete = null;
 function deleteUser(sender)
@@ -46,7 +79,7 @@ function deleteUser(sender)
     var target = $(sender).closest("tr");
     var userId = target.attr("data-user-id");
     userToDelete = userId;
-    $("#confirm-delete").show();
+    showModal("#confirm-delete")
 }
 function confirmDelete()
 {
@@ -56,9 +89,51 @@ function confirmDelete()
 }
 function registerNewAdmin()
 {
-    $("#register-new-admin").show();
+    showModal("#register-new-admin")
 }
-function confirmAdminRegister()
+async function confirmAdminRegister()
 {
-    showMessageBox("Registracija uspešna");
+    var name = $("#new-admin-name").val();
+    var password = $("#new-admin-password").val();
+    var confirm = $("#new-admin-password-confirm").val();
+    if (name.trim().length == 0 || password.trim().length == 0)
+    {
+        showAlertBox("Niste uneli sve podatke");
+        return;
+    }
+    if (password != confirm)
+    {
+        showAlertBox("Lozinke se ne poklapaju");
+        return;
+    }
+    blockElementWithMessage("Kreiram");
+    var response = await asyncAjax("/Admin/Register", { Username: name, Password: password });
+    $("body").unblock();
+    if (response.indexOf("FAIL:") != -1)
+    {
+        showAlertBox(response.replace("FAIL:", ""));
+    }
+    else
+    {
+        showMessageBox("Registracija uspešna");
+    }
+}
+async function setNewPassword()
+{
+    var password = $("#new-password").val();
+    var confirm = $("#new-password-confirm").val();
+    if (password.length == 0)
+    {
+        showAlertBox("Lozinka ne može biti prazna");
+        return;
+    }
+    if (password != confirm)
+    {
+        showAlertBox("Lozinke se ne poklapaju");
+        return;
+    }
+    blockElementWithMessage("Menjam");
+    await asyncAjax("/Admin/MyPassword", { password: password });
+    showMessageBox("Lozinka uspešno promenjena");
+    $("body").unblock();
 }

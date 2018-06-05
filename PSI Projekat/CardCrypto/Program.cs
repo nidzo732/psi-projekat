@@ -1,4 +1,8 @@
-﻿using Chrome4Net.NativeMessaging;
+﻿/**
+ * Program.cs
+ * Autor: Nikola Pavlović
+ */
+using Chrome4Net.NativeMessaging;
 using log4net;
 using Microsoft.Win32;
 using Newtonsoft.Json;
@@ -17,6 +21,13 @@ using System.Threading.Tasks;
 
 namespace CardCrypto
 {
+    /**
+     * <summary>Program koji prima zahteve od ekstenzije i obrađuje ih</summary>
+     * 
+     *  <remarks>
+     *  Verzija: 1.0
+     *  </remarks>
+     */
     class NativeHost
     {
         private static ILog log = null;
@@ -50,113 +61,49 @@ namespace CardCrypto
                         if (request.ContainsKey("type"))
                         {
                             string type = request["type"].ToObject<String>();
-                            if (type == "encrypt")
+                            switch(type)
                             {
-                                string payload = request["payload"].ToObject<String>();
-                                RSACryptoServiceProvider provider = null;
-                                if (request.ContainsKey("cert"))
-                                {
-                                    var cert = request["cert"].ToObject<String>();
-                                    provider = (RSACryptoServiceProvider)CryptoHelper.LoadCert(cert).PublicKey.Key;
-                                }
-                                else
-                                {
-                                    provider = CryptoHelper.GetProvider(false);
-                                }
-                                if (provider != null)
-                                {
-                                    var data = Convert.FromBase64String(payload);
-                                    var ciphertext = provider.Encrypt(data, false);
-                                    reply["payload"] = Convert.ToBase64String(ciphertext);
-                                    reply["status"] = "OK";
-                                }
-                                else
-                                {
-                                    reply["status"] = "NO_CARD";
-                                }
+                                case "getAesKey":
+                                    getAesKey(request, reply);
+                                    break;
+                                case "aesEncrypt":
+                                    aesEncrypt(request, reply);
+                                    break;
+                                case "aesDecrypt":
+                                    aesDecrypt(request, reply);
+                                    break;
+                                case "rsaEncrypt":
+                                    rsaEncrypt(request, reply);
+                                    break;
+                                case "rsaDecrypt":
+                                    rsaDecrypt(request, reply);
+                                    break;
+                                case "rsaDecryptMulti":
+                                    rsaDecryptMulti(request, reply);
+                                    break;
+                                case "getCertificate":
+                                    getCertificate(request, reply);
+                                    break;
+                                case "getPublic":
+                                    getPublic(request, reply);
+                                    break;
+                                case "sign":
+                                    sign(request, reply);
+                                    break;
+                                case "verify":
+                                    verify(request, reply);
+                                    break;
+                                case "check":
+                                    check(request, reply);
+                                    break;
                             }
-                            else if (type == "decrypt")
-                            {
-                                if (CryptoHelper.CardPresentAndCertValid())
-                                {
-                                    string payload = request["payload"].ToObject<String>();
-                                    var provider = CryptoHelper.GetProvider(false);
-                                    var ciphertext = Convert.FromBase64String(payload);
-                                    var plaintext = provider.Decrypt(ciphertext, false);
-                                    reply["payload"] = Convert.ToBase64String(plaintext);
-                                    reply["status"] = "OK";
-                                }
-                                else
-                                {
-                                    reply["status"] = "NO_CARD";
-                                }
-                            }
-                            else if (type == "export")
-                            {
-                                string certificate = CryptoHelper.GetCertificate();
-                                if (certificate != null)
-                                {
-                                    reply["payload"] = certificate;
-                                    reply["status"] = "OK";
-                                }
-                                else
-                                {
-                                    reply["status"] = "NO_CARD";
-                                }
-                            }
-                            else if (type == "sign")
-                            {
-                                if (CryptoHelper.CardPresentAndCertValid())
-                                {
-                                    string payload = request["payload"].ToObject<String>();
-                                    var provider = CryptoHelper.GetProvider(false);
-                                    var data = Convert.FromBase64String(payload);
-                                    var signature = provider.SignData(data, CryptoConfig.MapNameToOID("SHA256"));
-                                    reply["payload"] = Encoding.Unicode.GetString(signature);
-                                    reply["status"] = "OK";
-                                }
-                                else
-                                {
-                                    reply["status"] = "NO_CARD";
-                                }
-                            }
-                            else if (type == "verify")
-                            {
-                                string payload = request["payload"].ToObject<String>();
-                                byte[] signature = Convert.FromBase64String(request["signature"].ToObject<String>());
-                                RSACryptoServiceProvider provider = null;
-                                if (request.ContainsKey("cert"))
-                                {
-                                    var cert = request["cert"].ToObject<String>();
-                                    provider = (RSACryptoServiceProvider)CryptoHelper.LoadCert(cert).PublicKey.Key;
-                                }
-                                else
-                                {
-                                    provider = CryptoHelper.GetProvider(false);
-                                }
-                                if (provider != null)
-                                {
-                                    var data = Convert.FromBase64String(payload);
-                                    bool result = provider.VerifyData(data, CryptoConfig.MapNameToOID("SHA256"), signature);
-                                    reply["payload"] = result.ToString();
-                                    reply["status"] = "OK";
-                                }
-                                else
-                                {
-                                    reply["status"] = "NO_CARD";
-                                }
-                            }
-                            else if (type == "echo")
-                            {
-                                reply["type"] = "echo";
-                                reply["status"] = "OK";
-                            }
+                            if(!reply.ContainsKey("status")) reply["status"] = "OK";
                         }
                     }
                     catch (Exception ex)
                     {
                         reply["status"] = "EXC";
-                        reply["mesage"] = ex.Message;
+                        reply["message"] = ex.Message;
                         reply["strace"] = ex.StackTrace;
                     }
                     reply["source"] = request["destination"];
@@ -172,6 +119,145 @@ namespace CardCrypto
                     return;
                 }
             }
+        }
+
+        private static void rsaDecryptMulti(JObject request, JObject reply)
+        {
+            requireFields(request, "payload");
+            if (!CryptoHelper.CardPresentAndCertValid())
+            {
+                reply["status"] = "NO_CARD";
+                return;
+            }
+            var payloads = request["payload"].ToObject<String[]>();
+            var plaintexts = new List<string>();
+            foreach(var payload in payloads)
+            {
+                plaintexts.Add(CryptoHelper.RSADecrypt(payload));
+            }
+            reply["payload"] = new JArray(CryptoHelper.RSADecryptMulti(payloads));
+        }
+
+        private static void check(JObject request, JObject reply)
+        {
+            if(CryptoHelper.CardPresentAndCertValid())
+            {
+                reply["payload"] = "true";
+            }
+            else
+            {
+                reply["payload"] = "false";
+            }
+        }
+
+        private static void sign(JObject request, JObject reply)
+        {
+            requireFields(request, "payload");
+            if (!CryptoHelper.CardPresentAndCertValid())
+            {
+                reply["status"] = "NO_CARD";
+                return;
+            }
+            string plaintext = CryptoHelper.Sign(request["payload"].ToObject<String>());
+            reply["payload"] = plaintext;
+        }
+
+        private static void verify(JObject request, JObject reply)
+        {
+            requireFields(request, "payload", "signature");
+            string payload = request["payload"].ToObject<String>();
+            string signature = request["signature"].ToObject<String>();
+            string cert = request.ContainsKey("cert") ? request["cert"].ToObject<String>() : null;
+            string key = request.ContainsKey("key") ? request["key"].ToObject<String>() : null;
+            if (cert == null && key == null && !CryptoHelper.CardPresentAndCertValid())
+            {
+                reply["status"] = "NO_CARD";
+                return;
+            }
+
+            reply["payload"] = CryptoHelper.Verify(payload, signature, cert, key);
+        }
+
+        private static void rsaDecrypt(JObject request, JObject reply)
+        {
+            requireFields(request, "payload");
+            if(!CryptoHelper.CardPresentAndCertValid())
+            {
+                reply["status"] = "NO_CARD";
+                return;
+            }
+            string plaintext = CryptoHelper.RSADecrypt(request["payload"].ToObject<String>());
+            reply["payload"] = plaintext;
+        }
+
+        private static void rsaEncrypt(JObject request, JObject reply)
+        {
+            requireFields(request, "payload");
+            string payload = request["payload"].ToObject<String>();
+            string cert = request.ContainsKey("cert") ? request["cert"].ToObject<String>() : null;
+            string key = request.ContainsKey("key") ? request["key"].ToObject<String>() : null;
+            if(cert==null && key==null && !CryptoHelper.CardPresentAndCertValid())
+            {
+                reply["status"] = "NO_CARD";
+                return;
+            }
+
+            reply["payload"]=CryptoHelper.RSAEncrypt(payload, cert, key);
+        }
+
+        private static void getCertificate(JObject request, JObject reply)
+        {
+            if(!CryptoHelper.CardPresentAndCertValid())
+            {
+                reply["status"] = "NO_CARD";
+                return;
+            }
+            reply["payload"] = CryptoHelper.GetCertificate();
+
+        }
+
+        private static void getPublic(JObject request, JObject reply)
+        {
+            if (!CryptoHelper.CardPresentAndCertValid())
+            {
+                reply["status"] = "NO_CARD";
+                return;
+            }
+            reply["payload"] = CryptoHelper.GetCert(false).PublicKey.Key.ToXmlString(false);
+        }
+
+        private static void requireFields(JObject request, params string[] fields)
+        {
+            foreach(var field in fields)
+            {
+                if(!request.ContainsKey(field))
+                {
+                    throw new Exception("Missing argument '" + field + "'");
+                }
+            }
+        }
+
+        private static void aesEncrypt(JObject request, JObject reply)
+        {
+            requireFields(request, "payload", "key");
+            string key = request["key"].ToObject<String>();
+            string payload = request["payload"].ToObject<String>();
+            string ciphertext = CryptoHelper.AESEncrypt(payload, ref key);
+            reply["payload"] = ciphertext;
+        }
+
+        private static void aesDecrypt(JObject request, JObject reply)
+        {
+            requireFields(request, "payload", "key");
+            string key = request["key"].ToObject<String>();
+            string payload = request["payload"].ToObject<String>();
+            string ciphertext = CryptoHelper.AESDecrypt(payload, key);
+            reply["payload"] = ciphertext;
+        }
+
+        private static void getAesKey(JObject request, JObject reply)
+        {
+            reply["payload"] = CryptoHelper.GetAESKey();
         }
     }
 }
